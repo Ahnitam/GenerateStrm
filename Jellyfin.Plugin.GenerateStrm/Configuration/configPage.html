@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Generate Strm</title>
+</head>
+<body>
+    <div id="GenerateStrmConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="GenerateStrmConfigForm">
+                    <div class="inputContainer">
+                        <label class="inputeLabel inputLabelUnfocused" for="rclonePATH">Diretorio do rclone: </label>
+                        <input id="rclonePATH" name="rclonePATH" type="text" is="emby-input" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputeLabel inputLabelUnfocused" for="rcloneConfigPATH">Arquivo de configuração rclone: </label>
+                        <input id="rcloneConfigPATH" name="rcloneConfigPATH" type="text" is="emby-input" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputeLabel inputLabelUnfocused" for="rcloneRemoteDrive">Nome do drive remoto no rclone: </label>
+                        <input id="rcloneRemoteDrive" name="rcloneRemoteDrive" type="text" is="emby-input" />
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputeLabel inputLabelUnfocused" for="rcloneDrivePATH">Caminho do drive: (padrão "/")</label>
+                        <input id="rcloneDrivePATH" name="rcloneDrivePATH" type="text" is="emby-input" />
+                        <div class="fieldDescription">Caminho onde a busca de midia será feita, o padrão é na pasta raiz do drive</div>
+                    </div>
+                    <div class="inputContainer">
+                        <label class="inputeLabel inputLabelUnfocused" for="rcloneMediaPATH">Caminho para salvar arquivos STRM criados</label>
+                        <input id="rcloneMediaPATH" name="rcloneMediaPATH" type="text" is="emby-input" />
+                        <div class="fieldDescription">Lembre-se de dar permissões para essa pasta</div>
+                    </div>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Salvar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var GenerateStrmConfig = {
+                pluginUniqueId: 'ba40fc1c-12fd-438e-a0d0-504fada2347c'
+            };
+            
+            $('#GenerateStrmConfigPage').on('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(GenerateStrmConfig.pluginUniqueId).then(function (config) {
+                    document.querySelector('#rclonePATH').value = config.rclonePATH;
+                    document.querySelector('#rcloneConfigPATH').value = config.rcloneConfigPATH;
+                    document.querySelector('#rcloneRemoteDrive').value = config.rcloneRemoteDrive;
+                    document.querySelector('#rcloneDrivePATH').value = config.rcloneDrivePATH;
+                    document.querySelector('#rcloneMediaPATH').value = config.rcloneMediaPATH;
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            $('#GenerateStrmConfigPage').on('submit', function (e) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(GenerateStrmConfig.pluginUniqueId).then(function (config) {
+                    config.rclonePATH = document.querySelector('#rclonePATH').value.trim();
+                    config.rcloneConfigPATH = document.querySelector('#rcloneConfigPATH').value.trim();
+                    config.rcloneRemoteDrive = document.querySelector('#rcloneRemoteDrive').value.trim();
+                    config.rcloneDrivePATH = (document.querySelector('#rcloneDrivePATH').value.trim().endsWith("/")) ? document.querySelector('#rcloneDrivePATH').value.trim() : document.querySelector('#rcloneDrivePATH').value.trim() + "/";
+                    config.rcloneMediaPATH = (document.querySelector('#rcloneMediaPATH').value.trim().endsWith("/")) ? document.querySelector('#rcloneMediaPATH').value.trim() : document.querySelector('#rcloneMediaPATH').value.trim() + "/";
+                    ApiClient.updatePluginConfiguration(GenerateStrmConfig.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+                e.preventDefault();
+
+                return false;
+            });
+        </script>
+    </div>
+</body>
+</html>
